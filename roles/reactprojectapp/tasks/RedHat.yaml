@@ -1,0 +1,50 @@
+    - name: Install git on RedHat remote machine
+      yum:
+        name: "{{vc_packagename}}"
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "RedHat"
+
+    - name: To clone the GitHub repo
+      git:
+        repo: https://github.com/Supriyag2/reactjs-demo.git
+        clone: yes
+        dest: ~/reactjs-demo
+    - name: Install npm on RedHat remote machine
+      yum:
+        name: "{{Build_tool}}"
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "RedHat"
+
+    - name: Install dependencies using npm
+      command: /usr/bin/npm install
+      args:
+        chdir: ~/reactjs-demo
+      environment:
+        HOME: /root
+
+    - name: Run npm build
+      command: /usr/bin/npm run build
+      args:
+        chdir: ~/reactjs-demo
+      environment:
+        HOME: /root  
+    - name: Install yum  on RedHat remote machine
+      yum: #module name
+        name: "{{packagename}}" # name of the package name to install
+        state: latest #install latest version of the apache
+        update_cache: yes #equivalent to apt-get update
+      when: ansible_distribution=="RedHat"
+    - name: To enable the httpd service #after installing any tool or softeware, we need to start the service
+      service:
+        enabled: true
+        name: "{{Servicename}}"
+        state: started
+      when: ansible_distribution=="RedHat"
+    - name: To copy index.html to remote webserver
+      copy:
+        src: "~/reactjs-demo/{{artifact_path}}"
+        dest: "{{destination_path}}"
+      notify: restart apache and httpd
+          

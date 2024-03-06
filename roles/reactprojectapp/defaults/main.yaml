@@ -1,0 +1,4 @@
+vc_packagename: git
+Build_tool: npm 
+destination_path: /var/www/html
+artifact_path: build

@@ -1,0 +1,12 @@
+    - name: restart apache and http
+      service:
+        enabled: true
+        name: "{{Servicename}}"
+        state: restarted
+      when: ansible_distribution=="Ubuntu"
+    - name: To enable the httpd service #after installing any tool or softeware, we need to start the service
+      service:
+        enabled: true
+        name: "{{Servicename}}"
+        state: restarted
+      when: ansible_distribution=="RedHat"
