@@ -1,0 +1,112 @@
+- hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - name: Install git on Ubuntu remote machine
+      apt:
+        name: git
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install git on RedHat remote machine
+      yum:
+        name: git
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "RedHat"
+
+    - name: To clone the GitHub repo
+      git:
+        repo: https://github.com/Supriyag2/reactjs-demo.git
+        clone: yes
+        dest: ~/reactjs-demo
+
+    - name: Install npm on Ubuntu remote machine
+      apt:
+        name: npm
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install npm on RedHat remote machine
+      yum:
+        name: npm
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "RedHat"
+
+    - name: Install dependencies using npm
+      command: /usr/bin/npm install
+      args:
+        chdir: ~/reactjs-demo
+      environment:
+        HOME: /root
+      tags:
+        - task1
+    - name: Run npm build
+      command: /usr/bin/npm run build
+      args:
+        chdir: ~/reactjs-demo
+      environment:
+        HOME: /root
+      tags:
+        - task2
+    - name: Run npm build on RedHat remote machine
+      command: /usr/bin/npm run build
+      args:
+        chdir: ~/reactjs-demo
+      environment:
+        HOME: /root
+      when: ansible_distribution == "RedHat"
+      tags:
+        - task3
+    - name: Install apache2 on ubuntu remote machine
+      apt: #module name
+        name: apache2 # name of the package name to install
+        state: latest #install latest version of the apache
+        update_cache: yes #equivalent to apt-get update
+      when: ansible_distribution=="Ubuntu"
+      tags:
+        - task4
+
+        
+    - name: Install yum  on RedHat remote machine
+      yum: #module name
+        name: httpd # name of the package name to install
+        state: latest #install latest version of the apache
+        update_cache: yes #equivalent to apt-get update
+      when: ansible_distribution=="RedHat"
+      tags:
+        - task5
+
+    - name: To enable the apache2 service #after installing any tool or softeware, we need to start the service
+      service:
+        enabled: true
+        name: apache2
+        state: started
+      when: ansible_distribution=="Ubuntu"
+      tags:
+        - task6
+
+
+    - name: To enable the apache2 service #after installing any tool or softeware, we need to start the service
+      service:
+        enabled: true
+        name: httpd
+        state: started
+      when: ansible_distribution=="RedHat"
+      tags:
+        - task7
+
+    - name: To copy index.html to remote webserver
+      copy:
+        src: ~/reactjs-demo/build
+        dest: /var/www/html
+      tags:
+        - task8
+
+
+   
